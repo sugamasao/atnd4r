@@ -5,7 +5,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "atnd4r"
-    gem.summary = %Q{TODO}
+    gem.summary = %Q{ATND の API を Ruby から使用するたのラッパークラスです}
     gem.email = "sugamasao@gmail.com"
     gem.homepage = "http://github.com/sugamasao/atnd4r"
     gem.authors = ["sugamasao"]
