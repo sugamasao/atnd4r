@@ -67,6 +67,7 @@ module Atnd4r
   # private method
   ##################
   
+  # パラメータから QueryString を作成する。一つの Key に複数の値がある場合、カンマ区切りにする
   def self.make_query(param = {})
     query = []
     param.each do |key, val|
@@ -78,6 +79,15 @@ module Atnd4r
     end
 
     return query.join("&")
+  end
+  
+  # 共通の XMLデータのパース
+  def self.parse_common_xml(xml)
+    common = {}
+    common[:results_returned]  = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-returned']
+    common[:results_available] = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-available']
+    common[:results_start]     = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-start']
+    return common
   end
 
   # AtndEvent の配列を返却する
@@ -94,14 +104,6 @@ module Atnd4r
     return events_list
   end
   
-  # 共通の XMLデータのパース
-  def self.parse_common_xml(xml)
-    common = {}
-    common[:results_returned]  = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-returned']
-    common[:results_available] = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-available']
-    common[:results_start]     = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-start']
-    return common
-  end
 
   # AtndEvent の配列を返却する
   def self.parse_users_xml(xml)
@@ -134,7 +136,7 @@ module Atnd4r
   ################
   # private setting
   ###############
-  private_class_method :get_xml, :parse_users_xml, :make_query
+  private_class_method :get_xml, :parse_common_xml, :parse_events_xml, :parse_users_xml, :make_query
 
   class AtndEvent
     # XML オブジェクト
@@ -202,8 +204,6 @@ module Atnd4r
       case element_type
       when 'integer'
         val = element.text.to_i
-      when 'string'
-        val = element.text.to_s
       when 'decimal'
         val = element.text.to_f
       when 'datetime'

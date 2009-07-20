@@ -5,7 +5,7 @@ require 'pp'
 
 module Atnd4r
   # private methods to public
-  public_class_method :get_xml, :parse_users_xml, :make_query
+  public_class_method :get_xml, :parse_users_xml, :parse_events_xml, :parse_common_xml, :make_query
 end
 
 # 実際にリソースにアクセスしてしまうので、コメントアウト
@@ -16,10 +16,7 @@ describe "Atnd4r が、EventのAPIを叩く時" do
     events.class.should == Hash
   end
 
-  it "は、Hash の内容として、result_xxx の値を持っている事" do
-    events[:results_returned].should == 1
-    events[:results_available].should == 1
-    events[:results_start].should == 1
+  it "は、Hash の内容として、events を持っている事" do
     events[:events].class.should == Array
   end
 end
@@ -30,11 +27,19 @@ describe "Atnd4r が、Eventの出欠確認APIを叩く時" do
     events.class.should == Hash
   end
 
-  it "は、Hash の内容として、result_xxx の値を持っている事" do
-    events[:results_returned].class.should == Fixnum
-    events[:results_available].class.should == Fixnum
-    events[:results_start].class.should == Fixnum
+  it "は、Hash の内容として、events を持っている事" do
     events[:events].class.should == Array
+  end
+end
+=end
+
+# 実際にリクエストを発行してしまうのでコメントアウト
+=begin
+describe "Atnd4r::get_xml が、APIの URL(4xx や 5xx が返された) が違う場合" do
+  it "は、ATNDHTTPError を返す事" do
+    lambda {
+      Atnd4r.get_xml("/test", "query")
+    }.should raise_error(Atnd4r::ATNDHTTPError)
   end
 end
 =end
@@ -72,10 +77,15 @@ describe "Atnd4r::make_query がひとつのkey 対して複数valueのパラメ
   it "は、値が複数の場合は、カンマ区切りになるよ" do
     query = Atnd4r::make_query({"key" => ["value1", "value2"]})
     query.should == "key=value1,value2"
-    Atnd4r.atnd_api_url  = 10
   end
 end
 
+describe "Atnd4r::make_query がひとつのkey 対してvalueが nil のとき" do
+  it "は、値が空文字になるよ" do
+    query = Atnd4r::make_query({"key" => nil})
+    query.should == "key="
+  end
+end
 
 describe "Atnd4r::parse_users_xml XML がエラーメッセージだったとき" do
   xml_string = "<hash><error><message>error!</message></error></hash>"
@@ -87,6 +97,25 @@ describe "Atnd4r::parse_users_xml XML がエラーメッセージだったとき
     }.should raise_error(Atnd4r::ATNDParameterError, /error!/)
   end
 end
+
+describe "Atnd4r::parse_common_xml が正常に処理したとき" do
+  xml_string =<<-EOF
+  <hash>
+    <results-returned type="integer">1</results-returned>
+    <results-available type="integer">2</results-available>
+    <results-start type="integer">3</results-start>
+  </hash>
+  EOF
+  doc = REXML::Document.new xml_string
+
+  events = Atnd4r::parse_common_xml(doc)
+  it "は、Hash の内容として、result_xxx の値を持っている事" do
+    events[:results_returned].should == 1
+    events[:results_available].should == 2
+    events[:results_start].should == 3
+  end
+end
+
 
 describe "Atnd4r::parse_users_xml が正常に処理したとき" do
   xml_string =<<-EOF
@@ -146,7 +175,7 @@ describe "Atnd4r::parse_events_xml が正常に処理したとき" do
   <events type="array">
     <event>
       <place/>
-      <lon nil="true"/>
+      <lon type="decimal">0.0</lon>
       <accepted type="integer">1</accepted>
       <event-id type="integer">1</event-id>
       <updated-at type="datetime">2009-01-01T00:00:00+09:00</updated-at>
@@ -171,9 +200,9 @@ describe "Atnd4r::parse_events_xml が正常に処理したとき" do
   doc = REXML::Document.new xml_string
 
   it "は、入力されたイベントの値がそのまま取得できる" do 
-    events = Atnd4r.parse_users_xml(doc)
+    events = Atnd4r.parse_events_xml(doc)
     events.length.should == 1
-    events[0].lon.should == nil
+    events[0].lon.should == 0.0
     events[0].accepted.should == 1
     events[0].event_id.should == 1
     events[0].updated_at.should == Date.parse("2009-01-01T00:00:00+09:00")
