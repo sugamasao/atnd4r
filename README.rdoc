@@ -1,0 +1,7 @@
+= atnd4r
+
+Description goes here.
+
+== Copyright
+
+Copyright (c) 2009 sugamasao. See LICENSE for details.
