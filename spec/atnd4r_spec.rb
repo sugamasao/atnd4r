@@ -1,5 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'rexml/document'
+require 'net/http'
 require 'pp'
 
 
@@ -8,41 +9,145 @@ module Atnd4r
   public_class_method :get_xml, :parse_users_xml, :parse_events_xml, :parse_common_xml, :make_query
 end
 
-# 実際にリソースにアクセスしてしまうので、コメントアウト
-=begin
-describe "Atnd4r が、EventのAPIを叩く時" do
-  events = Atnd4r::get_event_list({:event_id => 1})
-  it "は、Hash を返す事" do
-    events.class.should == Hash
+describe Atnd4r, "get_event_list で値を取得した場合" do
+  xml_string =<<-EOF
+<hash>
+  <results-returned type="integer">9999</results-returned>
+  <results-available type="integer">1</results-available>
+  <events type="array">
+    <event>
+      <accepted type="integer">1</accepted>
+      <event-id type="integer">1</event-id>
+      <updated-at type="datetime">2009-01-01T00:00:00+09:00</updated-at>
+      <title>hoge event</title>
+      <waiting type="integer">0</waiting>
+      <event-url>hoge.com</event-url>
+      <users type="array">
+        <user>
+          <status type="integer">1</status>
+          <nickname>name</nickname>
+          <user-id type="integer">1</user-id>
+        </user>
+      </users>
+      <limit type="integer">1</limit>
+    </event>
+  </events>
+  <results-start type="integer">1</results-start>
+</hash>
+  EOF
+  before(:each) do
+    @http_mock = create_http_mock(xml_string, "200", "200 Ok")
+    Net::HTTP.stub!(:start).and_yield(@http_mock)
+  end
+  
+  it "AtndAPI オブジェクトが取得されること" do
+    event = Atnd4r::get_event_list({:event_id => 1})
+    event.class.should == Atnd4r::AtndAPI
+    event.results_returned.should == 9999
+    event.events[0].title.should == "hoge event"
+    event.events[0].users[0].nickname.should == "name"
   end
 
-  it "は、Hash の内容として、events を持っている事" do
-    events[:events].class.should == Array
+  after do
+    @http_mock = nil
   end
 end
 
-describe "Atnd4r が、Eventの出欠確認APIを叩く時" do
-  events = Atnd4r::get_user_list({:user_id => 1500})
-  it "は、Hash を返す事" do
-    events.class.should == Hash
+describe Atnd4r, "get_user_list で値を取得した場合" do
+  xml_string =<<-EOF
+<hash>
+  <results-returned type="integer">9999</results-returned>
+  <results-available type="integer">1</results-available>
+  <events type="array">
+    <event>
+      <accepted type="integer">1</accepted>
+      <event-id type="integer">1</event-id>
+      <updated-at type="datetime">2009-01-01T00:00:00+09:00</updated-at>
+      <title>hoge event</title>
+      <waiting type="integer">0</waiting>
+      <event-url>hoge.com</event-url>
+      <users type="array">
+        <user>
+          <status type="integer">1</status>
+          <nickname>name</nickname>
+          <user-id type="integer">1</user-id>
+        </user>
+      </users>
+      <limit type="integer">1</limit>
+    </event>
+  </events>
+  <results-start type="integer">1</results-start>
+</hash>
+  EOF
+  before(:each) do
+    @http_mock = create_http_mock(xml_string, "200", "200 Ok")
+    Net::HTTP.stub!(:start).and_yield(@http_mock)
+  end
+  
+  it "AtndAPI オブジェクトが取得されること" do
+    event = Atnd4r::get_user_list({:user_id => 1})
+    event.class.should == Atnd4r::AtndAPI
+    event.results_returned.should == 9999
+    event.events[0].title.should == "hoge event"
+    event.events[0].users[0].nickname.should == "name"
   end
 
-  it "は、Hash の内容として、events を持っている事" do
-    events[:events].class.should == Array
+  after do
+    @http_mock = nil
   end
 end
-=end
 
-# 実際にリクエストを発行してしまうのでコメントアウト
-=begin
-describe "Atnd4r::get_xml が、APIの URL(4xx や 5xx が返された) が違う場合" do
-  it "は、ATNDHTTPError を返す事" do
+describe "Atnd4r::get_xml で、サーバーエラー(4xx)が返された)場合" do
+  before(:each) do
+    @http_mock = create_http_mock("body", "400", "400_error")
+    Net::HTTP.stub!(:start).and_yield(@http_mock)
+  end
+
+  it "は、400 ならATNDHTTPError を返す事" do
     lambda {
-      Atnd4r.get_xml("/test", "query")
-    }.should raise_error(Atnd4r::ATNDHTTPError)
+      Atnd4r.get_xml("api", "query")
+    }.should raise_error(Atnd4r::ATNDHTTPError, /400_error/)
+  end
+
+  after do
+    @http_mock = nil
   end
 end
-=end
+
+describe "Atnd4r::get_xml で、サーバーエラー(4xx)が返された)場合" do
+  before(:each) do
+    @http_mock = create_http_mock("body", "500", "500_error")
+    Net::HTTP.stub!(:start).and_yield(@http_mock)
+  end
+
+  it "は、500 ならATNDHTTPError を返す事" do
+    lambda {
+      Atnd4r.get_xml("api", "query")
+    }.should raise_error(Atnd4r::ATNDHTTPError, /500_error/)
+  end
+
+  after do
+    @http_mock = nil
+  end
+end
+
+describe "Atnd4r::get_xml でXML が正しく取得できたとき" do
+  before(:each) do
+    xml_string = "<tag>hoge</tag>"
+    @http_mock = create_http_mock(xml_string, "200", "200 Ok")
+    Net::HTTP.stub!(:start).and_yield(@http_mock)
+  end
+
+  it "は、XMLオブジェクトの値として、 hoge を返す事" do
+    doc = Atnd4r.get_xml("api", "query")
+    doc.elements["tag"].text.should == "hoge"
+  end
+
+  after do
+    @http_mock = nil
+  end
+end
+
 
 describe "Atnd4r::make_query が、引数なしのパラメータを解析するとき" do
   it "は、文字列を返す事" do
@@ -109,10 +214,10 @@ describe "Atnd4r::parse_common_xml が正常に処理したとき" do
   doc = REXML::Document.new xml_string
 
   events = Atnd4r::parse_common_xml(doc)
-  it "は、Hash の内容として、result_xxx の値を持っている事" do
-    events[:results_returned].should == 1
-    events[:results_available].should == 2
-    events[:results_start].should == 3
+  it "は、AtndAPIオブジェクトの内容として、result_xxx の値を持っている事" do
+    events.results_returned.should == 1
+    events.results_available.should == 2
+    events.results_start.should == 3
   end
 end
 

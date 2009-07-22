@@ -49,7 +49,7 @@ module Atnd4r
   def self.get_event_list(param = {})
     xml = get_xml(@atnd_api_events, make_query(param))
     event = parse_common_xml(xml)
-    event[:events] = parse_events_xml(xml)
+    event.events = parse_events_xml(xml)
 
     return event
   end
@@ -58,7 +58,7 @@ module Atnd4r
   def self.get_user_list(param = {})
     xml = get_xml(@atnd_api_users, make_query(param))
     event = parse_common_xml(xml)
-    event[:events] = parse_users_xml(xml)
+    event.events = parse_users_xml(xml)
 
     return event
   end
@@ -83,11 +83,7 @@ module Atnd4r
   
   # 共通の XMLデータのパース
   def self.parse_common_xml(xml)
-    common = {}
-    common[:results_returned]  = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-returned']
-    common[:results_available] = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-available']
-    common[:results_start]     = AtndAPIUtil::to_ruby_type xml.elements['hash'].elements['results-start']
-    return common
+    common = AtndAPI.new(xml.elements['hash'])
   end
 
   # AtndEvent の配列を返却する
@@ -137,6 +133,18 @@ module Atnd4r
   # private setting
   ###############
   private_class_method :get_xml, :parse_common_xml, :parse_events_xml, :parse_users_xml, :make_query
+
+  class AtndAPI
+    def initialize(xml)
+      @results_returned  = AtndAPIUtil::to_ruby_type xml.elements['results-returned']
+      @results_available = AtndAPIUtil::to_ruby_type xml.elements['results-available']
+      @results_start     = AtndAPIUtil::to_ruby_type xml.elements['results-start']
+      @events            = nil
+    end
+
+    attr_reader :results_returned, :results_available, :results_start
+    attr_accessor :events
+  end
 
   class AtndEvent
     # XML オブジェクト
