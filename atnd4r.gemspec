@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "atnd4r.gemspec",
      "lib/atnd4r.rb",
      "spec/atnd4r_spec.rb",
      "spec/spec_helper.rb"
