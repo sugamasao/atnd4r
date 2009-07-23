@@ -1,7 +1,88 @@
 = atnd4r
 
-Description goes here.
+ATND WebAPI wrapper for Ruby.
+* Project Website - http://github.com/sugamasao/atnd4r/tree/master
+
+== Developers
+* {sugamasao}[http://sugamasao.dip.jp/] <sugamasao@gmail.com>
+
+== Features/Problems
+
+* Ruby 1.8.7 での動作確認を行っています
+* 2009/7/24 時点では、APIが正式公開前のため{WebAPI の解説ページ}[http://api.atnd.org] にアクセス制限が掛かっています（API自体は動いてるけど）。
+
+== Synopsis
+
+使用例
+
+=== 入力データについて
+
+検索用メソッドとして、下記の二つを用意しています。
+
+* Atnd4r.get_event_list
+* Atnd4r.get_user_list
+
+引数は、検索条件を Hash で渡せば良いです。
+例えば、 event_id が 1 の情報を調べる為には、
+
+  irb(main):002:0> Atnd4r.get_event_list({:event_id => 1})
+
+のような形式になります。
+一つの KEY に対して、複数の値を渡す場合は配列に入れて渡してください。
+
+  irb(main):003:0> Atnd4r.get_event_list({:event_id => [1,2]})
+
+詳細な検索の仕様は{ATND API の公式ページ}[http://api.atnd.org]をご覧ください。
+
+
+=== 出力データについて
+
+受け取ったデータは以下の形式のAtnd4r::AtndAPIというオブジェクトでラッピングされて返却されます。
+基本的には XML データを Ruby 用のオブジェクトに変換したものですので、プロパティエなどはほぼそのままです（ただし、ハイフンのものはアンダースコアにしています）。
+また、各プロパティは XML の属性にしたがったオブジェクトに変換されています。例えば、Integer とあれば Fixnum 型のように。
+
+==== 以下、オブジェクト構成
+
+カッコの既述があるもの意外は String や Fixnum のようなRuby標準の型になっています。
+
+===== Atnd4r::AtndAPI
+
+- @results_start
+- @results_returned
+- @results_available
+- @events（Atnd4r::AtndEventの配列）
+
+===== Atnd4r::AtndEvent
+
+- @waiting
+- @lon
+- @accepted
+- @lat
+- @owner_nickname
+- @title
+- @place
+- @owner_id
+- @limit
+- @url
+- @updated_at
+- @started_at
+- @description
+- @event_url
+- @ended_atl
+- @event_id
+- @address
+- @users（Atnd4r::AtndUserの配列）※ただし、イベント検索時は空配列
+
+===== Atnd4r::AtndUser
+
+- @nickname
+- @status
+- @user_id
+
+以上のようになっています。
 
 == Copyright
 
-Copyright (c) 2009 sugamasao. See LICENSE for details.
+Author:: sugamasao <sugamasao@gmail.com>
+License:: Ruby's
+
