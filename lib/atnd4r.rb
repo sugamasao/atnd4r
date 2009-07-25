@@ -193,7 +193,7 @@ module Atnd4r
   end
 
 
-  require 'date'
+  require 'time'
   module AtndAPIUtil
     # REXML::Element
     def self.to_ruby_type(element)
@@ -215,7 +215,7 @@ module Atnd4r
       when 'decimal'
         val = element.text.to_f
       when 'datetime'
-        val = Date.parse(element.text)
+        val = Time.parse(element.text)
       else
         val = element.text
       end

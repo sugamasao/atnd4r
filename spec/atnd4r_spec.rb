@@ -1,6 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'rexml/document'
 require 'net/http'
+require 'time'
 require 'pp'
 
 
@@ -255,7 +256,7 @@ describe "Atnd4r::parse_users_xml が正常に処理したとき" do
     events.length.should == 1
     events[0].accepted.should == 1
     events[0].event_id.should == 1
-    events[0].updated_at.should == Date.parse("2009-01-01T00:00:00+09:00")
+    events[0].updated_at.should == Time.parse("2009-01-01T00:00:00+09:00")
     events[0].title.should == "hoge event"
     events[0].waiting.should == 0
     events[0].event_url.should == "hoge.com"
@@ -283,7 +284,7 @@ describe "Atnd4r::parse_events_xml が正常に処理したとき" do
       <lon type="decimal">0.0</lon>
       <accepted type="integer">1</accepted>
       <event-id type="integer">1</event-id>
-      <updated-at type="datetime">2009-01-01T00:00:00+09:00</updated-at>
+      <updated-at type="datetime">2009-01-01T11:11:11+09:00</updated-at>
       <title>hoge event</title>
       <ended-at nil="true"/>
       <waiting type="integer">0</waiting>
@@ -310,8 +311,8 @@ describe "Atnd4r::parse_events_xml が正常に処理したとき" do
     events[0].lon.should == 0.0
     events[0].accepted.should == 1
     events[0].event_id.should == 1
-    events[0].updated_at.should == Date.parse("2009-01-01T00:00:00+09:00")
-    events[0].started_at.should == Date.parse("2009-01-01T00:00:00+09:00")
+    events[0].updated_at.should == Time.parse("2009-01-01T11:11:11+09:00")
+    events[0].started_at.should == Time.parse("2009-01-01T00:00:00+09:00")
     events[0].title.should == "hoge event"
     events[0].waiting.should == 0
     events[0].event_url.should == "hoge.com"
