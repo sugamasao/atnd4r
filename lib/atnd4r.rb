@@ -17,26 +17,26 @@ module Atnd4r
   # アクセッサメソッド
   ########################
 
-  # ATND の HOST名（http:// は不要）を設定します。
-  # 万が一 URL に変更がある場合は独自に設定してください
+  #ATND の HOST名（http:// は不要）を設定します。
+  #万が一 URL に変更がある場合は独自に設定してください
   def self.atnd_api_url=(val = "")
     @atnd_api_url = val
   end
   
-  # ATND の ポート番号を設定します。
-  # 万が一 URL に変更がある場合は独自に設定してください
+  #ATND の ポート番号を設定します。
+  #万が一 URL に変更がある場合は独自に設定してください
   def self.atnd_api_port=(val = 0)
     @atnd_api_port = val.to_i
   end
 
-  # ATND の イベント情報 API のパスを設定します。(末尾は '/' である必要があります)
-  # 万が一 URL に変更がある場合は独自に設定してください
+  #ATND の イベント情報 API のパスを設定します。(末尾は '/' である必要があります)
+  #万が一 URL に変更がある場合は独自に設定してください
   def self.atnd_api_events=(val = 0)
     @atnd_api_events = val.to_i
   end
 
-  # ATND の 出席情報 API のパスを設定します。(末尾は '/' である必要があります)
-  # 万が一 URL に変更がある場合は独自に設定してください
+  #ATND の 出席情報 API のパスを設定します。(末尾は '/' である必要があります)
+  #万が一 URL に変更がある場合は独自に設定してください
   def self.atnd_api_users=(val = "")
     @atnd_api_users = val
   end
@@ -45,7 +45,19 @@ module Atnd4r
   # public method
   ##################
 
-  # イベント情報を取得するための API
+  #== イベントサーチAPI
+  #イベントサーチAPI を実行します
+  #=== 引数
+  #_param_:: Hashのオブジェクト。一つの検索パラメータに対して、複数の値を渡す場合は、value部分を配列にしてください。
+  #例えば、event_id で検索する場合は、下記のようなパラメータを渡してください
+  #  {:event_id => 1}
+  #event_id を複数渡したい場合は配列にします。
+  # {:event_id => [1,2]}
+  #=== 戻り値
+  #Atnd4r::AtndAPI:: Atnd4r::AtndAPIオブジェクト
+  #=== 例外 
+  #Atnd4r::ATNDHTTPError:: API ヘアクセスした際に、400系や500系の応答コードがかえってきた場合に発生します
+  #Atnd4r::ATNDParameterError:: API 実行結果に Error メッセージが入っていた場合に発生します
   def self.get_event_list(param = {})
     xml = get_xml(@atnd_api_events, make_query(param))
     event = parse_common_xml(xml)
@@ -54,7 +66,19 @@ module Atnd4r
     return event
   end
 
-  # 出欠情報を取得する為の API を実行します
+  #== 出欠確認API
+  #出欠確認API を実行します
+  #=== 引数
+  #_param_:: Hashのオブジェクト。一つの検索パラメータに対して、複数の値を渡す場合は、value部分を配列にしてください。
+  #例えば、user_id で検索する場合は、下記のようなパラメータを渡してください
+  #  {:user_id => 1}
+  #user_id を複数渡したい場合は配列にします。
+  # {:user_id => [1,2]}
+  #=== 戻り値
+  #Atnd4r::AtndAPI:: Atnd4r::AtndAPIオブジェクト
+  #=== 例外 
+  #Atnd4r::ATNDHTTPError:: API ヘアクセスした際に、400系や500系の応答コードがかえってきた場合に発生します
+  #Atnd4r::ATNDParameterError:: API 実行結果に Error メッセージが入っていた場合に発生します
   def self.get_user_list(param = {})
     xml = get_xml(@atnd_api_users, make_query(param))
     event = parse_common_xml(xml)
