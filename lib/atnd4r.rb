@@ -74,9 +74,17 @@ module Atnd4r
       if val.nil?
         val = ""
       end
+
+      # format のオプションは無視する（XML固定のため）
+      if key.to_s == 'format'
+        next
+      end
       # key がシンボルの場合に備えて to_s しておく
       query << key.to_s.strip + "=" +  Array(val).map {|value| value.to_s.strip}.join(",")
     end
+
+    # format を XML にする
+    query << 'format=xml'
 
     return query.join("&")
   end

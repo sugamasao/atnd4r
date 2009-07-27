@@ -156,40 +156,40 @@ describe "Atnd4r::make_query が、引数なしのパラメータを解析する
     query.class.should == String
   end
 
-  it "は、内容は空文字列になっていること" do
+  it "は、内容はformatパラメータ文字列になっていること" do
     query = Atnd4r::make_query()
-    query.should == ""
+    query.should == "format=xml"
   end
 end
 
 describe "Atnd4r::make_query がひとつのkey&valueのパラメータを解析するとき" do
   it "は、Keyがシンボルでも文字列を返す事" do
     query = Atnd4r::make_query({:key => "value"})
-    query.should == "key=value"
+    query.should == "key=value&format=xml"
   end
 
   it "は、Keyが文字列でも文字列を返す事" do
     query = Atnd4r::make_query({"key" => "value"})
-    query.should == "key=value"
+    query.should == "key=value&format=xml"
   end
 
   it "は、Keyやvalueにスペースが混じっている場合除去された文字列を返す事" do
     query = Atnd4r::make_query({"  key " => " value "})
-    query.should == "key=value"
+    query.should == "key=value&format=xml"
   end
 end
 
 describe "Atnd4r::make_query がひとつのkey 対して複数valueのパラメータを解析するとき" do
   it "は、値が複数の場合は、カンマ区切りになるよ" do
     query = Atnd4r::make_query({"key" => ["value1", "value2"]})
-    query.should == "key=value1,value2"
+    query.should == "key=value1,value2&format=xml"
   end
 end
 
 describe "Atnd4r::make_query がひとつのkey 対してvalueが nil のとき" do
   it "は、値が空文字になるよ" do
     query = Atnd4r::make_query({"key" => nil})
-    query.should == "key="
+    query.should == "key=&format=xml"
   end
 end
 
