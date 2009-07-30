@@ -14,6 +14,7 @@ ATND WebAPI wrapper for Ruby.
 
 使用例
 
+  require 'rubygems'
   require 'atnd4r'
 
 === 入力データについて
@@ -47,42 +48,7 @@ ATND WebAPI wrapper for Ruby.
 ==== 以下、オブジェクト構成
 
 カッコの既述があるもの以外は String や Fixnum のようなRuby標準の型になっています。
-
-===== Atnd4r::AtndAPI
-
-- @results_start
-- @results_returned
-- @results_available
-- @events（Atnd4r::AtndEventの配列）
-
-===== Atnd4r::AtndEvent
-
-- @waiting
-- @lon
-- @accepted
-- @lat
-- @owner_nickname
-- @title
-- @place
-- @owner_id
-- @limit
-- @url
-- @updated_at
-- @started_at
-- @description
-- @event_url
-- @ended_atl
-- @event_id
-- @address
-- @users（Atnd4r::AtndUserの配列）※ただし、イベント検索時は空配列
-
-===== Atnd4r::AtndUser
-
-- @nickname
-- @status
-- @user_id
-
-以上のようになっています。
+詳細は{Atnd4R解説エントリ}[http://d.hatena.ne.jp/seiunsky/20090730/1248972545] をご覧ください。
 
 == Copyright
 
