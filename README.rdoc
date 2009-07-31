@@ -45,9 +45,9 @@ ATND WebAPI wrapper for Ruby.
 
 また、各プロパティは XML の属性にしたがったオブジェクトに変換されています。例えば、Integer とあれば Fixnum 型のように。
 
-==== 以下、オブジェクト構成
+==== Atnd4Rの戻り値のオブジェクトについて
 
-カッコの既述があるもの以外は String や Fixnum のようなRuby標準の型になっています。
+XMLに記載されている属性に従い、 String や Fixnum のようなRubyの型になっています。
 詳細は{Atnd4R解説エントリ}[http://d.hatena.ne.jp/seiunsky/20090730/1248972545] をご覧ください。
 
 == Copyright
