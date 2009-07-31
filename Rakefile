@@ -43,6 +43,7 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "atnd4r #{version}"
   rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('Changelog')
   rdoc.rdoc_files.include('lib/**/*.rb')
   rdoc.options = ["--charset", "utf-8", "--line-numbers"]
 end
